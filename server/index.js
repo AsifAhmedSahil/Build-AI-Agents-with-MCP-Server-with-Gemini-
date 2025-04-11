@@ -1,6 +1,7 @@
 import express from "express";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
+import {z} from 'zod'
 
 const server = new McpServer({
   name: "example-server",
@@ -10,6 +11,25 @@ const server = new McpServer({
 // ... set up server resources, tools, and prompts ...
 
 const app = express();
+
+server.tool(
+  "addTwoNumber",
+  "Add Two Numbers",
+  {
+    a:z.number(),
+    b:z.number()
+  },
+  async (arg) =>{
+    const {a,b} = arg
+    return [
+      {
+        type:"text",
+        text:`the sum of ${a} and ${b} is: ${a+b}`
+      }
+    ]
+  }
+)
+
 
 // to support multiple simultaneous connections we have a lookup object from
 // sessionId to transport
@@ -34,4 +54,6 @@ app.post("/messages", async (req, res) => {
   }
 });
 
-app.listen(3001);
+app.listen(3001,()=>{
+  console.log("server is running on port : 3001")
+});

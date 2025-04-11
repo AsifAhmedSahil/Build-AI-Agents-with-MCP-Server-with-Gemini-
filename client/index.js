@@ -2,17 +2,32 @@ import { config } from "dotenv";
 import readline from "readline/promises";
 
 import { GoogleGenAI } from "@google/genai";
-const { text } = require("stream/consumers");
-const { type } = require("os");
+
+import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
+
 config();
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+
+const mcpClient = new Client({
+  name: "example-client",
+  version: "1.0.0",
+});
 
 const chatHistory = [];
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
 });
+
+mcpClient
+  .connect(new SSEClientTransport(new URL("http://localhost:3001/sse")))
+  .then(async () => {
+    console.log("connected to mcp server!");
+    const tools = (await mcpClient.listTools()).tools;
+    console.log(tools);
+  });
 
 async function chatLoop() {
   const question = await rl.question("You:");
