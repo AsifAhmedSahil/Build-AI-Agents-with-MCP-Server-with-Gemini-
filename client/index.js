@@ -40,6 +40,7 @@ mcpClient
     chatLoop();
   });
 
+  // call tool 
 async function chatLoop(toolCall) {
   if (toolCall) {
     console.log("adding two numbers");
